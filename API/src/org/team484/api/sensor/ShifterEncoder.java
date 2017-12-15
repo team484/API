@@ -274,6 +274,6 @@ public class ShifterEncoder extends Encoder {
 	   */
 	  public double getRPM() {
 		  double rpp = shifter.isLowGear() ? lowGearRPP : highGearRPP;
-		  return getRawRate() * rpp * 60.0;
+		  return Math.abs(getRawRate() * rpp * 60.0);
 	  }
 }

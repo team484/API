@@ -46,8 +46,6 @@ public class ShifterDrive {
 	private ShifterMode shifterMode = ShifterMode.AUTO;
 	private boolean isInLowGear = true;
 	
-	private ShifterSolenoid leftShifterSolenoid;
-	private ShifterSolenoid rightShifterSolenoid;
 	private ShifterEncoder leftShifterEncoder;
 	private ShifterEncoder rightShifterEncoder;
 	
@@ -62,18 +60,13 @@ public class ShifterDrive {
 	 * that takes in SpeedController objects instead.
 	 * @param left - the PWM port the left motor is plugged in to.
 	 * @param right - the PWM port the right motor is plugged in to.
-	 * @param leftShifterSolenoid - the shifter solenoid object for the left gearbox.
-	 * @param rightShifterSolenoid - the shifter solenoid object for the right gearbox.
 	 * @param leftShifterEncoder - the encoder object for the left gearbox.
 	 * @param rightShifterEncoder - the encoder object for the right gearbox.
 	 */
-	public ShifterDrive(int left1, int right1, ShifterSolenoid leftShifterSolenoid,
-			ShifterSolenoid rightShifterSolenoid, ShifterEncoder leftShifterEncoder,
+	public ShifterDrive(int left1, int right1, ShifterEncoder leftShifterEncoder,
 			ShifterEncoder rightShifterEncoder) {
 		RobotDrive drive1 = new RobotDrive(left1, right1);
 		drive.add(drive1);
-		this.leftShifterSolenoid = leftShifterSolenoid;
-		this.rightShifterSolenoid = rightShifterSolenoid;
 		this.leftShifterEncoder = leftShifterEncoder;
 		this.rightShifterEncoder = rightShifterEncoder;
 	}
@@ -87,20 +80,15 @@ public class ShifterDrive {
 	 * @param left2 - the PWM port the other left motor is plugged in to.
 	 * @param right1 - the PWM port one of the right motors is plugged in to.
 	 * @param right2 - the PWM port the other right motor is plugged in to.
-	 * @param leftShifterSolenoid - the shifter solenoid object for the left gearbox.
-	 * @param rightShifterSolenoid - the shifter solenoid object for the right gearbox.
 	 * @param leftShifterEncoder - the encoder object for the left gearbox.
 	 * @param rightShifterEncoder - the encoder object for the right gearbox.
 	 */
-	public ShifterDrive(int left1, int left2, int right1, int right2, ShifterSolenoid leftShifterSolenoid,
-			ShifterSolenoid rightShifterSolenoid, ShifterEncoder leftShifterEncoder,
+	public ShifterDrive(int left1, int left2, int right1, int right2, ShifterEncoder leftShifterEncoder,
 			ShifterEncoder rightShifterEncoder) {
 		RobotDrive drive1 = new RobotDrive(left1, right1);
 		RobotDrive drive2 = new RobotDrive(left2, right2);
 		drive.add(drive1);
 		drive.add(drive2);
-		this.leftShifterSolenoid = leftShifterSolenoid;
-		this.rightShifterSolenoid = rightShifterSolenoid;
 		this.leftShifterEncoder = leftShifterEncoder;
 		this.rightShifterEncoder = rightShifterEncoder;
 	}
@@ -116,13 +104,10 @@ public class ShifterDrive {
 	 * @param right1 - the PWM port one of the right motors is plugged in to.
 	 * @param right2 - the PWM port the second right motor is plugged in to.
 	 * @param right3 - the PWM port the third right motor is plugged in to.
-	 * @param leftShifterSolenoid - the shifter solenoid object for the left gearbox.
-	 * @param rightShifterSolenoid - the shifter solenoid object for the right gearbox.
 	 * @param leftShifterEncoder - the encoder object for the left gearbox.
 	 * @param rightShifterEncoder - the encoder object for the right gearbox.
 	 */
 	public ShifterDrive(int left1, int left2, int left3, int right1, int right2, int right3,
-			ShifterSolenoid leftShifterSolenoid, ShifterSolenoid rightShifterSolenoid,
 			ShifterEncoder leftShifterEncoder, ShifterEncoder rightShifterEncoder) {
 		RobotDrive drive1 = new RobotDrive(left1, right1);
 		RobotDrive drive2 = new RobotDrive(left2, right2);
@@ -130,8 +115,6 @@ public class ShifterDrive {
 		drive.add(drive1);
 		drive.add(drive2);
 		drive.add(drive3);
-		this.leftShifterSolenoid = leftShifterSolenoid;
-		this.rightShifterSolenoid = rightShifterSolenoid;
 		this.leftShifterEncoder = leftShifterEncoder;
 		this.rightShifterEncoder = rightShifterEncoder;
 	}
@@ -140,18 +123,13 @@ public class ShifterDrive {
 	 * Creates a new ShifterDrive object with each gearbox having one speed controller object.
 	 * @param left1 - the speed controller for the left motor.
 	 * @param right2 - the speed controller for the right motor.
-	 * @param leftShifterSolenoid - the shifter solenoid object for the left gearbox.
-	 * @param rightShifterSolenoid - the shifter solenoid object for the right gearbox.
 	 * @param leftShifterEncoder - the encoder object for the left gearbox.
 	 * @param rightShifterEncoder - the encoder object for the right gearbox.
 	 */
-	public ShifterDrive(SpeedController left1, SpeedController right1, ShifterSolenoid leftShifterSolenoid,
-			ShifterSolenoid rightShifterSolenoid, ShifterEncoder leftShifterEncoder,
+	public ShifterDrive(SpeedController left1, SpeedController right1, ShifterEncoder leftShifterEncoder,
 			ShifterEncoder rightShifterEncoder) {
 		RobotDrive drive1 = new RobotDrive(left1, right1);
 		drive.add(drive1);
-		this.leftShifterSolenoid = leftShifterSolenoid;
-		this.rightShifterSolenoid = rightShifterSolenoid;
 		this.leftShifterEncoder = leftShifterEncoder;
 		this.rightShifterEncoder = rightShifterEncoder;
 	}
@@ -162,21 +140,16 @@ public class ShifterDrive {
 	 * @param left2 - the speed controller for the second left motor.
 	 * @param right1 - the speed controller for one of the right motors.
 	 * @param right2 - the speed controller for the second right motor.
-	 * @param leftShifterSolenoid - the shifter solenoid object for the left gearbox.
-	 * @param rightShifterSolenoid - the shifter solenoid object for the right gearbox.
 	 * @param leftShifterEncoder - the encoder object for the left gearbox.
 	 * @param rightShifterEncoder - the encoder object for the right gearbox.
 	 */
 	public ShifterDrive(SpeedController left1, SpeedController left2, SpeedController right1,
-			SpeedController right2, ShifterSolenoid leftShifterSolenoid,
-			ShifterSolenoid rightShifterSolenoid, ShifterEncoder leftShifterEncoder,
+			SpeedController right2, ShifterEncoder leftShifterEncoder,
 			ShifterEncoder rightShifterEncoder) {
 		RobotDrive drive1 = new RobotDrive(left1, right1);
 		RobotDrive drive2 = new RobotDrive(left2, right2);
 		drive.add(drive1);
 		drive.add(drive2);
-		this.leftShifterSolenoid = leftShifterSolenoid;
-		this.rightShifterSolenoid = rightShifterSolenoid;
 		this.leftShifterEncoder = leftShifterEncoder;
 		this.rightShifterEncoder = rightShifterEncoder;
 	}
@@ -189,14 +162,11 @@ public class ShifterDrive {
 	 * @param right1 - the speed controller for one of the right motors.
 	 * @param right2 - the speed controller for the second right motor.
 	 * @param right3 - the speed controller for the third right motor.
-	 * @param leftShifterSolenoid - the shifter solenoid object for the left gearbox.
-	 * @param rightShifterSolenoid - the shifter solenoid object for the right gearbox.
 	 * @param leftShifterEncoder - the encoder object for the left gearbox.
 	 * @param rightShifterEncoder - the encoder object for the right gearbox.
 	 */
 	public ShifterDrive(SpeedController left1, SpeedController left2, SpeedController left3,
 			SpeedController right1, SpeedController right2, SpeedController right3,
-			ShifterSolenoid leftShifterSolenoid, ShifterSolenoid rightShifterSolenoid,
 			ShifterEncoder leftShifterEncoder, ShifterEncoder rightShifterEncoder) {
 		RobotDrive drive1 = new RobotDrive(left1, right1);
 		RobotDrive drive2 = new RobotDrive(left2, right2);
@@ -204,8 +174,6 @@ public class ShifterDrive {
 		drive.add(drive1);
 		drive.add(drive2);
 		drive.add(drive3);
-		this.leftShifterSolenoid = leftShifterSolenoid;
-		this.rightShifterSolenoid = rightShifterSolenoid;
 		this.leftShifterEncoder = leftShifterEncoder;
 		this.rightShifterEncoder = rightShifterEncoder;
 	}
@@ -346,8 +314,8 @@ public class ShifterDrive {
 	 * Puts everything in high gear.
 	 */
 	private void setShifterHigh() {
-		leftShifterSolenoid.shiftToHigh();
-		rightShifterSolenoid.shiftToHigh();
+		leftShifterEncoder.getShifterSolenoid().shiftToHigh();
+		rightShifterEncoder.getShifterSolenoid().shiftToHigh();
 		isInLowGear = false;
 	}
 	
@@ -355,8 +323,8 @@ public class ShifterDrive {
 	 * Puts everything in low gear.
 	 */
 	private void setShifterLow() {
-		leftShifterSolenoid.shiftToLow();
-		rightShifterSolenoid.shiftToLow();
+		leftShifterEncoder.getShifterSolenoid().shiftToLow();
+		rightShifterEncoder.getShifterSolenoid().shiftToLow();
 		isInLowGear = true;
 	}
 	

@@ -16,8 +16,13 @@ import edu.wpi.first.wpilibj.Encoder;
  */
 public class ShifterEncoder extends Encoder {
 	
-	double lowGearRPP = 1, highGearRPP = 1, distancePerPulse = 1;
-	ShifterSolenoid shifter;
+	/*
+	 * The RPP values (Rotations Per Pulse) are defined as the gear ratio between the motors and
+	 * the encoder divided by the pulses per rotation for the encoder. The default values used below
+	 * are for the Vex ball shifter with a 3.68 spread and 256 PPR encoders.
+	 */
+	private double lowGearRPP = 10.42/256.0, highGearRPP = 2.83/256.0, distancePerPulse = 1;
+	private ShifterSolenoid shifter;
 	
 	/**
 	   * Shifter Encoder constructor. Construct a Shifter Encoder given a and b channels and a shifter
@@ -275,5 +280,23 @@ public class ShifterEncoder extends Encoder {
 	  public double getRPM() {
 		  double rpp = shifter.isLowGear() ? lowGearRPP : highGearRPP;
 		  return Math.abs(getRawRate() * rpp * 60.0);
+	  }
+	  
+	  /**
+	   * Gets the encoder's ShifterSolenoid object. This object is used by the encoder to determine if the
+	   * gearbox is in low or high gear.
+	   * @return the ShifterSolenoid.
+	   */
+	  public ShifterSolenoid getShifterSolenoid() {
+		  return shifter;
+	  }
+	  
+	  /**
+	   * Sets the encoder's ShifterSolenoid object. This object is used by the encoder to determine if the
+	   * gearbox is in low or high gear.
+	   * @param shifterSolenoid - The ShifterSolenoid object for the encoder to use.
+	   */
+	  public void getShifterSolenoid(ShifterSolenoid shifterSolenoid) {
+		  shifter = shifterSolenoid;
 	  }
 }

@@ -356,7 +356,7 @@ public class ShifterDrive {
 	 */
 	private void setShifterLow() {
 		leftShifterSolenoid.shiftToLow();
-		rightShifterSolenoid.shiftToHigh();
+		rightShifterSolenoid.shiftToLow();
 		isInLowGear = true;
 	}
 	

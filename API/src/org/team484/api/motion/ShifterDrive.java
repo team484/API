@@ -1,23 +1,18 @@
 package org.team484.api.motion;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.team484.api.sensor.ShifterEncoder;
 
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 
 /**
  * The ShifterDrive class is an alternative to RobotDrive that is designed to be used with a pair of
- * shifting gearboxes. The class takes in a pair of ShifterSolenoid objects and a pair of ShifterEncoder
- * objects and will use the enocder values to automatically tell the ShifterSolenoids when to shift gears.
- * The gear can be set manually as well by running setShifterMode().
+ * shifting gearboxes. The class takes in a pair of ShifterEncoder objects and will use the enocder values to
+ * automatically tell the ShifterSolenoids when to shift gears. The gear can be set manually as well by
+ * running setShifterMode().
  * <p>
  * For this class, high gear is the gear that moves faster but has less pushing power, and low gear is the
  * gear that moves more slowly but has more pushing power.
- *
  */
 public class ShifterDrive {
 	
@@ -35,13 +30,23 @@ public class ShifterDrive {
 	 * gears depending on the robot's speed.
 	 */
 	public enum ShifterMode {
+		/**
+		 * The high (fast) gearing
+		 */
 		HIGH,
+		
+		/**
+		 * The low (slow) gearing
+		 */
 		LOW,
+		
+		/**
+		 * Automatically switch back and fourth between high and low depending on the situation
+		 */
 		AUTO
 	}
 	
-	// A struct to store RobotDrive objects for each Left-Right motor pair
-	private List<RobotDrive> drive = new ArrayList<>();
+	private RobotDrive drive;
 	
 	private ShifterMode shifterMode = ShifterMode.AUTO;
 	private boolean isInLowGear = true;
@@ -50,130 +55,20 @@ public class ShifterDrive {
 	private ShifterEncoder rightShifterEncoder;
 	
 	//Optimal theoretical shifting RPMs multiplied by the operating efficiency
-	private double downshiftRPM = 1140 * 0.81;
-	private double upshiftRPM = 4190 * 0.81;
+	private double downshiftRPM = 1140 * 0.9;
+	private double upshiftRPM = 4190 * 0.9;
 	
 	/**
-	 * Creates a new ShifterDrive object with each gearbox having one motor channel. This constructor
-	 * uses the port numbers given for the motors to create new instances of PWM objects. If the speed
-	 * controller is not PWM or the port has already been initialized, use the version of this constructor
-	 * that takes in SpeedController objects instead.
-	 * @param left - the PWM port the left motor is plugged in to.
-	 * @param right - the PWM port the right motor is plugged in to.
-	 * @param leftShifterEncoder - the encoder object for the left gearbox.
-	 * @param rightShifterEncoder - the encoder object for the right gearbox.
+	 * Creates a new ShifterDrive object using a Speed Controller Group for each side of the robot as well as
+	 * a Shifter Encoder for each side. The solenoids in the shifter encoder objects are used for shifting.
+	 * @param left - The group of speed controllers that power the left gearbox.
+	 * @param right - The group of speed controllers that power the left gearbox.
+	 * @param leftShifterEncoder - The encoder object for the left gearbox.
+	 * @param rightShifterEncoder - The encoder object for the right gearbox.
 	 */
-	public ShifterDrive(int left1, int right1, ShifterEncoder leftShifterEncoder,
+	public ShifterDrive(SpeedControllerGroup left, SpeedControllerGroup right, ShifterEncoder leftShifterEncoder,
 			ShifterEncoder rightShifterEncoder) {
-		RobotDrive drive1 = new RobotDrive(left1, right1);
-		drive.add(drive1);
-		this.leftShifterEncoder = leftShifterEncoder;
-		this.rightShifterEncoder = rightShifterEncoder;
-	}
-	
-	/**
-	 * Creates a new ShifterDrive object with each gearbox having two motor channels. This constructor
-	 * uses the port numbers given for the motors to create new instances of PWM objects. If the speed
-	 * controller is not PWM or the port has already been initialized, use the version of this constructor
-	 * that takes in SpeedController objects instead.
-	 * @param left1 - the PWM port one of the left motors is plugged in to.
-	 * @param left2 - the PWM port the other left motor is plugged in to.
-	 * @param right1 - the PWM port one of the right motors is plugged in to.
-	 * @param right2 - the PWM port the other right motor is plugged in to.
-	 * @param leftShifterEncoder - the encoder object for the left gearbox.
-	 * @param rightShifterEncoder - the encoder object for the right gearbox.
-	 */
-	public ShifterDrive(int left1, int left2, int right1, int right2, ShifterEncoder leftShifterEncoder,
-			ShifterEncoder rightShifterEncoder) {
-		RobotDrive drive1 = new RobotDrive(left1, right1);
-		RobotDrive drive2 = new RobotDrive(left2, right2);
-		drive.add(drive1);
-		drive.add(drive2);
-		this.leftShifterEncoder = leftShifterEncoder;
-		this.rightShifterEncoder = rightShifterEncoder;
-	}
-	
-	/**
-	 * Creates a new ShifterDrive object with each gearbox having three motor channels. This constructor
-	 * uses the port numbers given for the motors to create new instances of PWM objects. If the speed
-	 * controller is not PWM or the port has already been initialized, use the version of this constructor
-	 * that takes in SpeedController objects instead.
-	 * @param left1 - the PWM port one of the left motors is plugged in to.
-	 * @param left2 - the PWM port the second left motor is plugged in to.
-	 * @param left3 - the PWM port the third left motor is plugged in to
-	 * @param right1 - the PWM port one of the right motors is plugged in to.
-	 * @param right2 - the PWM port the second right motor is plugged in to.
-	 * @param right3 - the PWM port the third right motor is plugged in to.
-	 * @param leftShifterEncoder - the encoder object for the left gearbox.
-	 * @param rightShifterEncoder - the encoder object for the right gearbox.
-	 */
-	public ShifterDrive(int left1, int left2, int left3, int right1, int right2, int right3,
-			ShifterEncoder leftShifterEncoder, ShifterEncoder rightShifterEncoder) {
-		RobotDrive drive1 = new RobotDrive(left1, right1);
-		RobotDrive drive2 = new RobotDrive(left2, right2);
-		RobotDrive drive3 = new RobotDrive(left3, right3);
-		drive.add(drive1);
-		drive.add(drive2);
-		drive.add(drive3);
-		this.leftShifterEncoder = leftShifterEncoder;
-		this.rightShifterEncoder = rightShifterEncoder;
-	}
-	
-	/**
-	 * Creates a new ShifterDrive object with each gearbox having one speed controller object.
-	 * @param left1 - the speed controller for the left motor.
-	 * @param right2 - the speed controller for the right motor.
-	 * @param leftShifterEncoder - the encoder object for the left gearbox.
-	 * @param rightShifterEncoder - the encoder object for the right gearbox.
-	 */
-	public ShifterDrive(SpeedController left1, SpeedController right1, ShifterEncoder leftShifterEncoder,
-			ShifterEncoder rightShifterEncoder) {
-		RobotDrive drive1 = new RobotDrive(left1, right1);
-		drive.add(drive1);
-		this.leftShifterEncoder = leftShifterEncoder;
-		this.rightShifterEncoder = rightShifterEncoder;
-	}
-	
-	/**
-	 * Creates a new ShifterDrive object with each gearbox having two speed controller objects.
-	 * @param left1 - the speed controller for one of the left motors.
-	 * @param left2 - the speed controller for the second left motor.
-	 * @param right1 - the speed controller for one of the right motors.
-	 * @param right2 - the speed controller for the second right motor.
-	 * @param leftShifterEncoder - the encoder object for the left gearbox.
-	 * @param rightShifterEncoder - the encoder object for the right gearbox.
-	 */
-	public ShifterDrive(SpeedController left1, SpeedController left2, SpeedController right1,
-			SpeedController right2, ShifterEncoder leftShifterEncoder,
-			ShifterEncoder rightShifterEncoder) {
-		RobotDrive drive1 = new RobotDrive(left1, right1);
-		RobotDrive drive2 = new RobotDrive(left2, right2);
-		drive.add(drive1);
-		drive.add(drive2);
-		this.leftShifterEncoder = leftShifterEncoder;
-		this.rightShifterEncoder = rightShifterEncoder;
-	}
-	
-	/**
-	 * Creates a new ShifterDrive object with each gearbox having three speed controller objects.
-	 * @param left1 - the speed controller for one of the left motors.
-	 * @param left2 - the speed controller for the second left motor.
-	 * @param left3 - the speed controller for the third left motor.
-	 * @param right1 - the speed controller for one of the right motors.
-	 * @param right2 - the speed controller for the second right motor.
-	 * @param right3 - the speed controller for the third right motor.
-	 * @param leftShifterEncoder - the encoder object for the left gearbox.
-	 * @param rightShifterEncoder - the encoder object for the right gearbox.
-	 */
-	public ShifterDrive(SpeedController left1, SpeedController left2, SpeedController left3,
-			SpeedController right1, SpeedController right2, SpeedController right3,
-			ShifterEncoder leftShifterEncoder, ShifterEncoder rightShifterEncoder) {
-		RobotDrive drive1 = new RobotDrive(left1, right1);
-		RobotDrive drive2 = new RobotDrive(left2, right2);
-		RobotDrive drive3 = new RobotDrive(left3, right3);
-		drive.add(drive1);
-		drive.add(drive2);
-		drive.add(drive3);
+		drive = new RobotDrive(left, right);
 		this.leftShifterEncoder = leftShifterEncoder;
 		this.rightShifterEncoder = rightShifterEncoder;
 	}
@@ -195,44 +90,21 @@ public class ShifterDrive {
 	}
 	
 	/**
-	 * Sets if a particular motor on the drivetrain should be inverted. For most gearboxes, this should
-	 * not be necessary as all motors on one side of the robot should have the same inversion state. To
-	 * change the inversion for all motors, use setInversionOfSide();
-	 * @param motor - The left or right side of the robot.
-	 * @param motorNumber - The number assigned to the motor when this object was constructed.
-	 * @param isInverted - If the motor in question should be inverted.
-	 */
-	public void setInverted(Side motor, int motorNumber, boolean isInverted) {
-		if (drive.size() <= motorNumber) {
-			System.err.println("Cannot set inverted value for motor number " + motorNumber +
-					". That motor number is not assigned");
-			return;
-		}
-		if (motorNumber < 0) {
-			System.err.println("Cannot set inverted value for negative motor number (" + motorNumber + ")");
-		}
-		
-		switch(motor) {
-		case LEFT:
-			drive.get(motorNumber).setInvertedMotor(MotorType.kFrontLeft, isInverted);
-			break;
-		case RIGHT:
-			drive.get(motorNumber).setInvertedMotor(MotorType.kFrontRight, isInverted);
-			break;
-		default:
-			System.err.println("Unknown motor type: " + motor.name());
-		}
-	}
-	
-	/**
 	 * Sets if the motors on one side of the robot should be inverted or not. This is useful if a flipped
-	 * gearbox results in one side (or both) of the robot moving in the wrong direction.
+	 * gearbox results in one (or both) side of the robot moving in the wrong direction.
 	 * @param motor - The side of the robot to consider inversion on.
 	 * @param isInverted - If the side in question should be inverted.
 	 */
 	public void setInversionOfSide(Side motor, boolean isInverted) {
-		for(int i = 0; i < drive.size(); i++) {
-			setInverted(motor, i, isInverted);
+		switch(motor) {
+		case LEFT:
+			drive.setInvertedMotor(MotorType.kFrontLeft, isInverted);
+			break;
+		case RIGHT:
+			drive.setInvertedMotor(MotorType.kFrontRight, isInverted);
+			break;
+		default:
+			System.err.println("Unknown motor type: " + motor.name());
 		}
 	}
 	
@@ -243,11 +115,16 @@ public class ShifterDrive {
 	 * @param maxOutput Multiplied with the output percentage computed by the drive functions.
 	 */
 	public void setMaxOutput(double maxOutput) {
-		for (RobotDrive motorPair : drive) {
-			motorPair.setMaxOutput(maxOutput);
-		}
+		drive.setMaxOutput(maxOutput);
 	}
 	
+	/**
+	 * Sets which "shifting mode" the drivetrain should be in. High means that the drivetrain should shift
+	 * to high gear and remain there. Low means the drivetrain should shift into low gear instead of high.
+	 * Auto means the drivetrain should automatically switch back and forth between gears for optimal power.
+	 * This method does not need to be repeatedly called. Only once when switching modes.
+	 * @param mode - The mode to switch to.
+	 */
 	public void setShifterMode(ShifterMode mode) {
 		this.shifterMode = mode;
 	}
@@ -260,9 +137,7 @@ public class ShifterDrive {
 	 * @param rotation - The rate at which to rotate clockwise/counterclockwise. (from 1 to -1)
 	 */
 	public void arcadeDrive(double speed, double rotation) {
-		for (RobotDrive motorPair : drive) {
-			motorPair.arcadeDrive(speed, rotation);
-		}
+			drive.arcadeDrive(speed, rotation);
 		checkShifterGear();
 	}
 	
@@ -273,9 +148,7 @@ public class ShifterDrive {
 	 * @param rightSpeed - Speed of the right wheels. (from 1 to -1)
 	 */
 	public void tankDrive(double leftSpeed, double rightSpeed) {
-		for (RobotDrive motorPair : drive) {
-			motorPair.tankDrive(leftSpeed, rightSpeed);
-		}
+			drive.tankDrive(leftSpeed, rightSpeed);
 		checkShifterGear();
 	}
 	
@@ -285,9 +158,7 @@ public class ShifterDrive {
 	 * @param rotation - The rate at which to rotate clockwise/counterclockwise. (from 1 to -1)
 	 */
 	public void linearDrive(double speed, double rotation) {
-		for (RobotDrive motorPair : drive) {
-			motorPair.arcadeDrive(speed, rotation, false);
-		}
+			drive.arcadeDrive(speed, rotation, false);
 		checkShifterGear();
 	}
 	

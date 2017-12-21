@@ -54,9 +54,9 @@ public class ShifterDrive {
 	private ShifterEncoder leftShifterEncoder;
 	private ShifterEncoder rightShifterEncoder;
 	
-	//Optimal theoretical shifting RPMs multiplied by the operating efficiency
-	private double downshiftRPM = 1140 * 0.9;
-	private double upshiftRPM = 4190 * 0.9;
+	//Optimal theoretical shifting RPMs based on gear ratios, motor power band, anticipated load, and efficiency losses
+	private double downshiftRPM = 910;
+	private double upshiftRPM = 3349;
 	
 	/**
 	 * Creates a new ShifterDrive object using a Speed Controller Group for each side of the robot as well as

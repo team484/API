@@ -130,6 +130,17 @@ public class ShifterDrive {
 	}
 	
 	/**
+	 * Gets which "shifting mode" the drivetrain is currently running in. The three possible modes are low,
+	 * high, or auto. Low means the drivetrain is set to operate in low gear, high means the drivetrain is
+	 * set to operate in high gear, auto means the drivetrain is set to automatically switch between low and
+	 * high gear depending on the situation.
+	 * @return the shifting mode
+	 */
+	public ShifterMode getShifterMode() {
+		return this.shifterMode;
+	}
+	
+	/**
 	 * Drives the robot in arcade drive. The first value is how quickly the robot should travel forward/
 	 * backward and the second value is how quickly the robot should rotate clockwise/counterclockwise.
 	 * These values are squared to improve smoothness when operating the robot using a joystick.

@@ -21,7 +21,7 @@ public class ShifterEncoder extends Encoder {
 	 * the encoder divided by the pulses per rotation for the encoder. The default values used below
 	 * are for the Vex ball shifter with a 3.68 spread and 256 PPR encoders.
 	 */
-	private double lowGearRPP = 10.42/256.0, highGearRPP = 2.83/256.0, distancePerPulse = 1;
+	private double lowGearRPP = 10.42/256.0/3.0, highGearRPP = 2.83/256.0/3.0, distancePerPulse = 1;
 	private ShifterSolenoid shifter;
 	
 	/**

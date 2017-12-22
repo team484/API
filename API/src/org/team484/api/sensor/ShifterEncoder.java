@@ -39,7 +39,7 @@ public class ShifterEncoder extends Encoder {
 	   */
 	  public ShifterEncoder(final int channelA, final int channelB, boolean reverseDirection,
 			  ShifterSolenoid shifterSolenoid) {
-	    super(channelA, channelB, reverseDirection);
+	    super(channelA, channelB, reverseDirection, Encoder.EncodingType.k1X);
 	    shifter = shifterSolenoid;
 	  }
 
@@ -56,7 +56,7 @@ public class ShifterEncoder extends Encoder {
 	   * 
 	   */
 	  public ShifterEncoder(final int channelA, final int channelB, ShifterSolenoid shifterSolenoid) {
-	    super(channelA, channelB);
+	    super(channelA, channelB, false, Encoder.EncodingType.k1X);
 	    shifter = shifterSolenoid;
 	  }
 

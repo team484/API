@@ -4,6 +4,7 @@ import org.team484.api.motion.ShifterSolenoid;
 
 import edu.wpi.first.wpilibj.DigitalSource;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 
 /**
  * Class to read quadrature encoders attached to a shifting gearbox. The purpose of this class is to
@@ -39,7 +40,7 @@ public class ShifterEncoder extends Encoder {
 	   */
 	  public ShifterEncoder(final int channelA, final int channelB, boolean reverseDirection,
 			  ShifterSolenoid shifterSolenoid) {
-	    super(channelA, channelB, reverseDirection, Encoder.EncodingType.k1X);
+	    super(channelA, channelB, reverseDirection);
 	    shifter = shifterSolenoid;
 	  }
 
@@ -56,7 +57,7 @@ public class ShifterEncoder extends Encoder {
 	   * 
 	   */
 	  public ShifterEncoder(final int channelA, final int channelB, ShifterSolenoid shifterSolenoid) {
-	    super(channelA, channelB, false, Encoder.EncodingType.k1X);
+	    super(channelA, channelB);
 	    shifter = shifterSolenoid;
 	  }
 
@@ -300,3 +301,4 @@ public class ShifterEncoder extends Encoder {
 		  shifter = shifterSolenoid;
 	  }
 }
+

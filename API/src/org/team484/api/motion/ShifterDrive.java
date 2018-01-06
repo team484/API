@@ -2,8 +2,8 @@ package org.team484.api.motion;
 
 import org.team484.api.sensor.ShifterEncoder;
 
-import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.RobotDrive.MotorType;
+import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 /**
  * The ShifterDrive class is an alternative to RobotDrive that is designed to be used with a pair of
@@ -46,7 +46,8 @@ public class ShifterDrive {
 		AUTO
 	}
 	
-	private RobotDrive drive;
+	private DifferentialDrive drive;
+	private SpeedController leftSC, rightSC;
 	
 	private ShifterMode shifterMode = ShifterMode.AUTO;
 	private boolean isInLowGear = true;
@@ -54,9 +55,13 @@ public class ShifterDrive {
 	private ShifterEncoder leftShifterEncoder;
 	private ShifterEncoder rightShifterEncoder;
 	
-	//Optimal theoretical shifting RPMs based on gear ratios, motor power band, anticipated load, and efficiency losses
-	private double downshiftRPM = 910;
-	private double upshiftRPM = 3349;
+	//The robot shifts to high gear when its speed >shiftingSpeed + deadband
+	//The robot shifts to low gear when its speed <shiftingSpeed - deadband
+	private double shiftingSpeed = 70;
+	private double shiftingDeadband = 5;
+	
+	private long lastShiftTime = 0; //The last time (UNIX time) a shift occured
+	private int shiftingWaitTime = 500; //A cooldown time (in ms)
 	
 	/**
 	 * Creates a new ShifterDrive object using a Speed Controller Group for each side of the robot as well as
@@ -68,25 +73,38 @@ public class ShifterDrive {
 	 */
 	public ShifterDrive(SpeedControllerGroup left, SpeedControllerGroup right, ShifterEncoder leftShifterEncoder,
 			ShifterEncoder rightShifterEncoder) {
-		drive = new RobotDrive(left, right);
+		drive = new DifferentialDrive(left, right);
+		leftSC = left;
+		rightSC = right;
 		this.leftShifterEncoder = leftShifterEncoder;
 		this.rightShifterEncoder = rightShifterEncoder;
 	}
 	
 	/**
-	 * Sets the RPM at which the drivetrain will switch to low gear when running in auto mode.
-	 * @param rpm - The motor RPM.
+	 * Sets the speed at which the shifter will change back and fourth between high and low gears.
+	 * @param speed - speed in units per seconds.
 	 */
-	public void setDownshiftRPM(double rpm) {
-		downshiftRPM = rpm;
+	public void setShiftingSpeed(double speed) {
+		shiftingSpeed = speed;
 	}
 	
 	/**
-	 * Sets the RPM at which the drivetrain will switch to high gear when running in auto mode.
-	 * @param rpm - The motor RPM.
+	 * Sets the deadband for shifting (in units per second)
+	 * For the shifter to auto shift up, it must pass a speed of shiftingSpeed + deadband.
+	 * To shift down, the speed must be less than shiftingSpeed - deadband.
+	 * @param deadband - the deadband in the shifter
 	 */
-	public void setUpshiftRPM(double rpm) {
-		upshiftRPM = rpm;
+	public void setShiftingDeadband(double deadband) {
+		shiftingDeadband = deadband;
+	}
+	
+	/**
+	 * Sets the cooldown time between shifts. Will wait to shift again until so many milliseconds after the
+	 * last shift event. This number is in milliseconds.
+	 * @param ms - Cooldown time in milliseconds (default 500)
+	 */
+	public void setShiftingCooldown(int ms) {
+		shiftingWaitTime = ms;
 	}
 	
 	/**
@@ -98,10 +116,10 @@ public class ShifterDrive {
 	public void setInversionOfSide(Side motor, boolean isInverted) {
 		switch(motor) {
 		case LEFT:
-			drive.setInvertedMotor(MotorType.kFrontLeft, isInverted);
+			leftSC.setInverted(isInverted);
 			break;
 		case RIGHT:
-			drive.setInvertedMotor(MotorType.kFrontRight, isInverted);
+			rightSC.setInverted(isInverted);
 			break;
 		default:
 			System.err.println("Unknown motor type: " + motor.name());
@@ -148,7 +166,7 @@ public class ShifterDrive {
 	 * @param rotation - The rate at which to rotate clockwise/counterclockwise. (from 1 to -1)
 	 */
 	public void arcadeDrive(double speed, double rotation) {
-			drive.arcadeDrive(speed, rotation);
+		drive.arcadeDrive(speed, rotation);
 		checkShifterGear();
 	}
 	
@@ -159,7 +177,7 @@ public class ShifterDrive {
 	 * @param rightSpeed - Speed of the right wheels. (from 1 to -1)
 	 */
 	public void tankDrive(double leftSpeed, double rightSpeed) {
-			drive.tankDrive(leftSpeed, rightSpeed);
+		drive.tankDrive(leftSpeed, rightSpeed);
 		checkShifterGear();
 	}
 	
@@ -169,7 +187,7 @@ public class ShifterDrive {
 	 * @param rotation - The rate at which to rotate clockwise/counterclockwise. (from 1 to -1)
 	 */
 	public void linearDrive(double speed, double rotation) {
-			drive.arcadeDrive(speed, rotation, false);
+		drive.arcadeDrive(speed, rotation, false);
 		checkShifterGear();
 	}
 	
@@ -196,6 +214,10 @@ public class ShifterDrive {
 	 * Puts everything in high gear.
 	 */
 	private void setShifterHigh() {
+		if (Math.abs(System.currentTimeMillis() - lastShiftTime) < shiftingWaitTime) {
+			return;
+		}
+		lastShiftTime = System.currentTimeMillis();
 		leftShifterEncoder.getShifterSolenoid().shiftToHigh();
 		rightShifterEncoder.getShifterSolenoid().shiftToHigh();
 		isInLowGear = false;
@@ -205,6 +227,10 @@ public class ShifterDrive {
 	 * Puts everything in low gear.
 	 */
 	private void setShifterLow() {
+		if (Math.abs(System.currentTimeMillis() - lastShiftTime) < shiftingWaitTime) {
+			return;
+		}
+		lastShiftTime = System.currentTimeMillis();
 		leftShifterEncoder.getShifterSolenoid().shiftToLow();
 		rightShifterEncoder.getShifterSolenoid().shiftToLow();
 		isInLowGear = true;
@@ -214,15 +240,21 @@ public class ShifterDrive {
 	 * Automatically shifts between high and low gears based on motor RPM.
 	 */
 	private void autoShift() {
-		double leftRPM = leftShifterEncoder.getRPM();
-		double rightRPM = rightShifterEncoder.getRPM();
 		
-		//Get the slower of the two RPM values (assuming the slower value isn't 0)
-		double rpm = leftRPM < rightRPM && leftRPM > 0 || rightRPM == 0 ? leftRPM : rightRPM;
-					 
+		double leftSpeed = Math.abs(leftShifterEncoder.getRate());
+		double rightSpeed = Math.abs(rightShifterEncoder.getRate());
+		
+		double speed;
+		if (leftSpeed == 0) {
+			speed = rightSpeed;
+		} else if (rightSpeed == 0) {
+			speed = leftSpeed;
+		} else {
+			speed = Math.max(leftSpeed, rightSpeed);
+		}
+		
 		if (isInLowGear) {
-			
-			if (rpm > upshiftRPM) {
+			if (speed > shiftingSpeed+shiftingDeadband) {
 				setShifterHigh();
 			} else {
 				setShifterLow();
@@ -230,7 +262,7 @@ public class ShifterDrive {
 			
 		} else {
 			
-			if (rpm < downshiftRPM) {
+			if (speed < shiftingSpeed - shiftingDeadband) {
 				setShifterLow();
 			} else {
 				setShifterHigh();

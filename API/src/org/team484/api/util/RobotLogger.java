@@ -330,11 +330,9 @@ public class RobotLogger extends Thread {
 			break;
 		case DRIVERSTATION:
 			sb.append(loggerObject.name + " - time,");
-			sb.append(loggerObject.name + " - voltage,");
 			sb.append(loggerObject.name + " - enabled,");
 			sb.append(loggerObject.name + " - auto,");
 			sb.append(loggerObject.name + " - tele,");
-			sb.append(loggerObject.name + " - brownout,");
 			sb.append(loggerObject.name + " - connection,");
 			break;
 		case ENCODER:
@@ -405,11 +403,9 @@ public class RobotLogger extends Thread {
 		case DRIVERSTATION:
 			DriverStation ds = (DriverStation) loggerObject.obj;
 			sb.append(ds.getMatchTime() + ",");
-			sb.append(ds.getBatteryVoltage() + ",");
 			sb.append(ds.isEnabled() + ",");
 			sb.append(ds.isAutonomous() + ",");
 			sb.append(ds.isOperatorControl() + ",");
-			sb.append(ds.isBrownedOut() + ",");
 			sb.append(ds.isDSAttached() + ",");
 			break;
 		case ENCODER:
